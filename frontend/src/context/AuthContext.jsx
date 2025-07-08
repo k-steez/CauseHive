@@ -1,64 +1,88 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext(null);
+const AuthContext = React.createContext();
 
-export const AuthProvider = ({ children }) => {
+// Mock user database
+const mockUsers = {
+  'user@example.com': { id: 1, email: 'user@example.com', name: 'Test User', role: 'user' },
+  'organizer@example.com': { id: 2, email: 'organizer@example.com', name: 'Test Organizer', role: 'organizer' },
+};
+
+export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize user from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+    // Check for a logged-in user in localStorage on initial load
+    try {
+      const storedUser = localStorage.getItem('causehive_user');
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      localStorage.removeItem('causehive_user');
     }
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    // Mock login
-    return new Promise((resolve) => {
+  function login(email, password) {
+    // In a real app, you'd verify the password. Here, we just check if the user exists.
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const user = { id: 1, email, name: 'Test User' };
-        setCurrentUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        resolve(user);
-      }, 500);
+        if (mockUsers[email]) {
+          const user = mockUsers[email];
+          setCurrentUser(user);
+          localStorage.setItem('causehive_user', JSON.stringify(user));
+          resolve(user);
+        } else {
+          reject(new Error('User not found.'));
+        }
+      }, 500); // Simulate network delay
     });
-  };
+  }
 
-  const signup = async (name, email, password) => {
-    // Mock signup
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const user = { id: 2, email, name };
-        setCurrentUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        resolve(user);
-      }, 500);
-    });
-  };
-
-  const logout = () => {
+  function logout() {
     setCurrentUser(null);
-    localStorage.removeItem('user');
-  };
+    localStorage.removeItem('causehive_user');
+    return Promise.resolve();
+  }
+
+  function signup(email, password, name, role = 'user') {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (mockUsers[email]) {
+          reject(new Error('User already exists.'));
+        } else {
+          const newUser = { id: Date.now(), email, name, role };
+          mockUsers[email] = newUser; // Add to our mock DB
+          setCurrentUser(newUser);
+          localStorage.setItem('causehive_user', JSON.stringify(newUser));
+          resolve(newUser);
+        }
+      }, 500);
+    });
+  }
 
   const value = {
     currentUser,
-    loading,
     login,
-    signup,
     logout,
+    signup,
+    loading,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined || context === null) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

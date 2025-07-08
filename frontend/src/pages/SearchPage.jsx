@@ -2,12 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PhotoCard from '../components/PhotoCard';
 import { searchPhotos } from '../services/photoService';
+import Navbar from '../components/Navbar';
+import '../global.css';
+
+const mockResults = [
+  {
+    title: 'Clean Water for All',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
+    description: 'Help us build wells and provide clean water to rural communities.',
+  },
+  {
+    title: 'Education for Every Child',
+    image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',
+    description: 'Support our mission to supply books and resources to children in need.',
+  },
+];
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [tag, setTag] = useState(searchParams.get('tag') || '');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState(mockResults);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [resultsPerPage] = useState(12);
@@ -59,75 +74,30 @@ const SearchPage = () => {
   };
   
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Search Photos</h1>
-      
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, description, or tags"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div className="w-full md:w-48">
-            <select
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Tags</option>
-              <option value="environment">Environment</option>
-              <option value="community">Community</option>
-              <option value="ocean">Ocean</option>
-              <option value="hunger">Hunger</option>
-              <option value="animals">Animals</option>
-              <option value="welfare">Welfare</option>
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 whitespace-nowrap"
-          >
-            Search
-          </button>
+    <>
+      <Navbar />
+      <section style={{ maxWidth: 800, margin: '3rem auto', background: '#181818', borderRadius: 16, padding: '2.5rem 2rem', color: '#fff', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
+        <h1 style={{ color: '#00bcd4', marginBottom: 16 }}>Search Causes</h1>
+        <input
+          type="text"
+          placeholder="Search for a cause..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #333', background: '#222', color: '#fff', marginBottom: 24 }}
+        />
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {results.map((cause, idx) => (
+            <div key={idx} style={{ background: '#222', borderRadius: 12, width: 300, boxShadow: '0 2px 16px rgba(0,0,0,0.12)', marginBottom: 24, overflow: 'hidden' }}>
+              <img src={cause.image} alt={cause.title} style={{ width: '100%', height: 180, objectFit: 'cover' }} />
+              <div style={{ padding: 18 }}>
+                <h2 style={{ color: '#00bcd4', fontSize: 22, marginBottom: 8 }}>{cause.title}</h2>
+                <p style={{ color: '#ccc', marginBottom: 12 }}>{cause.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      </form>
-      
-      {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="w-12 h-12 border-t-4 border-blue-500 rounded-full animate-spin"></div>
-        </div>
-      ) : currentResults.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {currentResults.map(photo => (
-              <PhotoCard key={photo.id} photo={photo} />
-            ))}
-          </div>
-          
-          {/* Pagination */}
-          <div className="flex justify-center mt-8">
-            {Array.from({ length: Math.ceil(results.length / resultsPerPage) }, (_, i) => i + 1).map(number => (
-              <button
-                key={number}
-                onClick={() => paginate(number)}
-                className={`mx-1 px-3 py-1 rounded ${currentPage === number ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-              >
-                {number}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className="text-center py-12 text-gray-500">
-          No photos found. Try a different search.
-        </div>
-      )}
-    </div>
+      </section>
+    </>
   );
 };
 

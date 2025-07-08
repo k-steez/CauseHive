@@ -1,46 +1,27 @@
-import api from './api';
-
 export const uploadPhoto = async (photoData) => {
-  try {
-    const response = await api.post('/photos', photoData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { id: 1, ...photoData };
 };
 
 export const getPhotos = async () => {
-  try {
-    const response = await api.get('/photos');
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return [
+    { id: 1, title: 'Photo 1', url: 'https://via.placeholder.com/150' },
+    { id: 2, title: 'Photo 2', url: 'https://via.placeholder.com/150' },
+  ];
 };
 
 export const getPhotoById = async (id) => {
-  try {
-    const response = await api.get(`/photos/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { id, title: `Photo ${id}`, url: 'https://via.placeholder.com/150' };
 };
 
-export const getPhotosByUser = async (userId) => {
-  try {
-    const response = await api.get(`/photos/user/${userId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+export const getPhotosByUser = async () => {
+  return [
+    { id: 1, title: 'User Photo 1', url: 'https://via.placeholder.com/150' },
+    { id: 2, title: 'User Photo 2', url: 'https://via.placeholder.com/150' },
+  ];
 };
 
 export const searchPhotos = async (query) => {
-  try {
-    const response = await api.get(`/photos/search?q=${query}`);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return [
+    { id: 1, title: `Search Result for ${query}`, url: 'https://via.placeholder.com/150' },
+  ];
 };

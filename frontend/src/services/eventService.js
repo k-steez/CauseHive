@@ -1,45 +1,22 @@
-import api from './api';
-
 export const createEvent = async (eventData) => {
-  try {
-    const response = await api.post('/events', eventData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { id: 1, ...eventData };
 };
 
 export const getEvents = async () => {
-  try {
-    const response = await api.get('/events');
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return [
+    { id: 1, name: 'Event 1', description: 'Description for Event 1' },
+    { id: 2, name: 'Event 2', description: 'Description for Event 2' },
+  ];
 };
 
 export const getEventById = async (id) => {
-  try {
-    const response = await api.get(`/events/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { id, name: `Event ${id}`, description: `Description for Event ${id}` };
 };
 
 export const updateEvent = async (id, eventData) => {
-  try {
-    const response = await api.put(`/events/${id}`, eventData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { id, ...eventData };
 };
 
 export const deleteEvent = async (id) => {
-  try {
-    await api.delete(`/events/${id}`);
-  } catch (error) {
-    throw error.response.data;
-  }
+  return { success: true, id };
 };
